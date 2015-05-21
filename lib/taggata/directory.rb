@@ -3,12 +3,6 @@ module Taggata
     set_schema do
       primary_key :id
       String :name
-      # Datetime :atime
-      # Datetime :ctime
-      # Datetime :mtime
-      # Integer :mode
-      # Integer :size
-      # String :type
       foreign_key :parent_id, :directories
     end
 
@@ -34,6 +28,13 @@ module Taggata
     def scan
       scanner = ::Taggata::FilesystemScanner.new
       scanner.process(self)
+      validate
+    end
+
+    def validate
+      missing = ::Taggata::Tag.find_or_create(:name => MISSING_TAG_NAME)
+      files.reject { |f| ::File.exist? f.path }.each { |f| f.add_tag missing }
+      directories.each(&:validate)
     end
 
     # Get full path of this directory

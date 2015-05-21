@@ -13,14 +13,19 @@ module Taggata
       # @result [::Taggata::File] list of files with this tag
       def self.resolve(token)
         type, name = token.split(':', 2)
-        case type
+        case type.downcase
         when 'is', 'tag'
-          tag = ::Taggata::Tag.find(:name => name)
-          tag.nil? ? [] : tag.files
+          ::Taggata::Tag.files(:name => name)
         when 'file', 'name'
           File.all.select { |f| f.name[/#{name}/] }
         when 'path'
           File.all.select { |f| f.path[/#{name}/] }
+        when 'missing'
+          ::Taggata::Tag.files(:name => MISSING_TAG_NAME)
+        when 'untagged'
+          ids = File.map(:id)
+                    .select { |id| DB[:file_tags].where(:file_id => id).empty? }
+          File.where(:id => ids)
         else
           fail "Unknown token type '#{type}'"
         end

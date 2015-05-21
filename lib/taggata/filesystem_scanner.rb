@@ -20,8 +20,11 @@ module Taggata
     def do_job(dir, path)
       Dir.glob("#{path}/*") do |child|
         if ::File.file? child
-          ::Taggata::File.find_or_create(:name => ::File.basename(child),
-                                         :parent_id => dir.id).add_tag @tag
+          if ::Taggata::File.find(:name => ::File.basename(child),
+                                  :parent_id => dir.id).nil?
+            ::Taggata::File.create(:name => ::File.basename(child),
+                                   :parent_id => dir.id).add_tag @tag
+          end
           @done += 1
         else
           d = [::Taggata::Directory

@@ -2,6 +2,7 @@ require 'taggata/version'
 require 'sequel'
 
 module Taggata
+  require 'taggata/constants'
   require 'taggata/file'
   require 'taggata/directory'
   require 'taggata/tag'

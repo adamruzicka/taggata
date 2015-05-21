@@ -3,7 +3,11 @@ module Taggata
     set_schema do
       primary_key :id
       String :name
-      foreign_key :parent_id, :directories
+      foreign_key :parent_id, :directories, :on_delete => :set_null
+    end
+
+    def before_destroy
+      remove_all_tags
     end
 
     create_table unless table_exists?

@@ -5,7 +5,7 @@ module Taggata
     let(:workdir) { ::Dir.mktmpdir }
     let(:scanner) { FilesystemScanner.new }
     let(:root) { Directory.find_or_create(:name => workdir) }
-    let(:default_tag) { mock }
+    let(:default_tag) { ::Taggata::Tag.find_or_create(:name => DEFAULT_TAG_NAME)}
     let(:file) { mock }
 
     after do
@@ -21,11 +21,13 @@ module Taggata
 
     it 'scans directory with files' do
       root
-      Tag.expects(:find_or_create).returns(default_tag)
       file.expects(:add_tag).with(default_tag).times(5)
       5.times do |i|
         FileUtils.touch(::File.join(workdir, "file-#{i}"))
-        File.expects(:find_or_create)
+        File.expects(:find)
+          .with(:name => "file-#{i}", :parent_id => root.id)
+          .returns(nil)
+        File.expects(:create)
           .with(:name => "file-#{i}", :parent_id => root.id)
           .returns(file)
       end
@@ -36,13 +38,15 @@ module Taggata
     it 'scans subdirectories' do
       root
       FileUtils.mkdir_p(::File.join(workdir, 'subdir'))
-      Tag.expects(:find_or_create).returns(default_tag)
       file.expects(:add_tag).with(default_tag).times(5)
       subdir = Directory.find_or_create(:name => 'subdir',
                                         :parent_id => root.id)
       5.times do |i|
         FileUtils.touch(::File.join(workdir, 'subdir', "file-#{i}"))
-        File.expects(:find_or_create)
+        File.expects(:find)
+          .with(:name => "file-#{i}", :parent_id => subdir.id)
+          .returns(nil)
+        File.expects(:create)
           .with(:name => "file-#{i}", :parent_id => subdir.id)
           .returns(file)
       end

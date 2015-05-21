@@ -31,6 +31,9 @@ when 'tag'
     tag_hash[:del].each { |tag| file.remove_tag tag }
     tag_hash[:add].each { |tag| file.add_tag tag }
   end
+when 'remove'
+  files = ::Taggata::Parser::Query.parse(ARGV[2])
+  files.each(&:destroy)
 when 'count'
   puts ::Taggata::Parser::Query.parse(ARGV[2]).count
 end

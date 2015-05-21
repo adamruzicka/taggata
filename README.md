@@ -31,6 +31,10 @@ Get count of matching entries:
 Tag an entry:
 
     $ taggata $DATABASE tag "$SEARCH_QUERY" "$TAG_QUERY"
+
+Remove files matchine query:
+
+    $ taggata $DATABASE remove "$SEARCH_QUERY"
     
 Query formats:
 Search query has format of "$TYPE:$PARAMETER", where:
@@ -42,6 +46,9 @@ Search query has format of "$TYPE:$PARAMETER", where:
 - $PARAMETER
   - for ```is``` and ```tag``` it is a string
   - for ```path``` and ```name``` it is a regular expression
+- special cases
+  - ```missing``` - searches for files which are present in the database but not on filesystem
+  - ```untagged``` - searches for files without any tag
 
 The search queries can be combined by using operators ```and``` and ```or``` and parentheses.
 For example to get all files tagged as photos taken in year 2014 and 2015 one would issue:

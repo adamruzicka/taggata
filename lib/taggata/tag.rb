@@ -11,5 +11,10 @@ module Taggata
     end
 
     create_table unless table_exists?
+
+    def self.files(query)
+      tag = find(query)
+      tag.nil? ? [] : tag.files
+    end
   end
 end
