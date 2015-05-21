@@ -1,0 +1,8 @@
+Style/HashSyntax:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Lint/UselessAccessModifier:
+  Enabled: false
+Style/RegexpLiteral:
+  Enabled: false

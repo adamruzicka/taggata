@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+require 'sequel'
+DB = Sequel.connect("sqlite://#{ARGV[0]}")
+Sequel::Model.plugin(:schema)
+
+DB.create_table :file_tags do
+  foreign_key :tag_id, :tags
+  foreign_key :file_id, :files
+end unless DB.table_exists? :file_tags
+
+require 'taggata'
+
+case ARGV[1]
+when 'scan'
+  root = ::Taggata::Directory.find_or_create(:name => ARGV[2])
+  root.scan
+when 'search'
+  result = ::Taggata::Parser::Query.parse(ARGV[2])
+  if result.empty?
+    puts "No files matching query '#{ARGV[2]}'"
+  else
+    result.each do |f|
+      puts f.path
+    end
+  end
+when 'tag'
+  result = ::Taggata::Parser::Query.parse(ARGV[2])
+  tag_hash = ::Taggata::Parser::Tag.parse(ARGV[3])
+  result.each do |file|
+    tag_hash[:del].each { |tag| file.remove_tag tag }
+    tag_hash[:add].each { |tag| file.add_tag tag }
+  end
+when 'count'
+  puts ::Taggata::Parser::Query.parse(ARGV[2]).count
+end
