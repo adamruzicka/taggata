@@ -18,7 +18,7 @@ module Taggata
       private
 
       def self.find_tags(names)
-        in_db = ::Taggata::Tag.where(:name => names).all
+        in_db = ::Taggata::Tag.where(:name => names).map(:name)
         ::Taggata::Tag
           .dataset
           .multi_insert((names - in_db).map { |name| { :name => name } })

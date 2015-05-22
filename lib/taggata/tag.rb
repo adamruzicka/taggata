@@ -7,7 +7,7 @@ module Taggata
 
     set_schema do
       primary_key :id
-      String :name
+      String :name, :unique => true
     end
 
     create_table unless table_exists?
