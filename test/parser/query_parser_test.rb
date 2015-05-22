@@ -32,6 +32,15 @@ module Taggata
           .must_equal ['is:2014', 'is:2015', 'is:2016', :or, :and]
       end
 
+      it 'return type is always an array' do
+        parser.send(:resolve, 'is:test').must_be_instance_of Array
+        parser.send(:resolve, 'tag:test').must_be_instance_of Array
+        parser.send(:resolve, 'file:test').must_be_instance_of Array
+        parser.send(:resolve, 'path:test').must_be_instance_of Array
+        parser.send(:resolve, 'untagged').must_be_instance_of Array
+        parser.send(:resolve, 'missing').must_be_instance_of Array
+      end
+
       it 'tries to resolve the token' do
         tag = mock.tap { |t| t.expects(:files).returns([1]) }
         ::Taggata::Tag.expects(:find).with(:name => '2014').returns(tag)

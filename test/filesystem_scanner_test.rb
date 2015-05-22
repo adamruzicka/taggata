@@ -5,55 +5,48 @@ module Taggata
     let(:workdir) { ::Dir.mktmpdir }
     let(:scanner) { FilesystemScanner.new }
     let(:root) { Directory.find_or_create(:name => workdir) }
-    let(:default_tag) { ::Taggata::Tag.find_or_create(:name => DEFAULT_TAG_NAME)}
     let(:file) { mock }
+
+    before do
+      scanner.expects(:report)
+    end
 
     after do
       FileUtils.rm_rf workdir
     end
 
-    it 'scans empty folder' do
+    it 'process creates initial job' do
       root
-      File.expects(:find_or_create).never
-      Directory.expects(:find_or_create).never
+      scanner.expects(:do_job).with(root.id, root.name)
+      scanner.process(root)
+    end
+
+    it 'scans empty directory' do
+      scanner.expects(:save_missing).never
+      scanner.expects(:add_directory_jobs).never
       scanner.process(root)
     end
 
     it 'scans directory with files' do
-      root
-      file.expects(:add_tag).with(default_tag).times(5)
-      5.times do |i|
-        FileUtils.touch(::File.join(workdir, "file-#{i}"))
-        File.expects(:find)
-          .with(:name => "file-#{i}", :parent_id => root.id)
-          .returns(nil)
-        File.expects(:create)
-          .with(:name => "file-#{i}", :parent_id => root.id)
-          .returns(file)
+      basenames = (1..5).map { |i| "file-#{i}" }
+      basenames.each do |name|
+        FileUtils.touch(::File.join(workdir, name))
       end
-      Directory.expects(:find_or_create).never
+      scanner.expects(:save_missing).with(basenames, root.id, ::Taggata::File)
+      scanner.expects(:add_directory_jobs).never
       scanner.process(root)
     end
 
     it 'scans subdirectories' do
-      root
-      FileUtils.mkdir_p(::File.join(workdir, 'subdir'))
-      file.expects(:add_tag).with(default_tag).times(5)
-      subdir = Directory.find_or_create(:name => 'subdir',
-                                        :parent_id => root.id)
-      5.times do |i|
-        FileUtils.touch(::File.join(workdir, 'subdir', "file-#{i}"))
-        File.expects(:find)
-          .with(:name => "file-#{i}", :parent_id => subdir.id)
-          .returns(nil)
-        File.expects(:create)
-          .with(:name => "file-#{i}", :parent_id => subdir.id)
-          .returns(file)
+      basenames = (1..5).map { |i| "file-#{i}" }
+      subdir_path = ::File.join(workdir, 'subdir')
+      FileUtils.mkdir_p(subdir_path)
+      Directory.find_or_create(:name => 'subdir',
+                               :parent_id => root.id)
+      basenames.each do |name|
+        FileUtils.touch(::File.join(subdir_path, name))
       end
-      Directory.expects(:find_or_create)
-        .with(:name => 'subdir', :parent_id => root.id)
-        .returns(subdir)
-      scanner.expects(:report)
+      scanner.expects(:add_directory_jobs).with([subdir_path], root.id)
       scanner.process(root)
     end
   end

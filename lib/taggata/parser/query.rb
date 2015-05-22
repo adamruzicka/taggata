@@ -24,8 +24,8 @@ module Taggata
           ::Taggata::Tag.files(:name => MISSING_TAG_NAME)
         when 'untagged'
           ids = File.map(:id)
-                    .select { |id| DB[:file_tags].where(:file_id => id).empty? }
-          File.where(:id => ids)
+                .select { |id| DB[:file_tags].where(:file_id => id).empty? }
+          File.where(:id => ids).all
         else
           fail "Unknown token type '#{type}'"
         end

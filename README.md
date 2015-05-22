@@ -56,9 +56,9 @@ For example to get all files tagged as photos taken in year 2014 and 2015 one wo
     $ taggata $DATABASE search "is:photo and ( is:2014 or is:2015 )"
 
 Tag query has format of ```+$TAG_NAME``` or ```-$TAG_NAME```, one can specify more in one query
-For example to tag all files which ```default``` tag (which is set during scan) containing ```Photos``` in path with tags ```photo``` and ```to-backup``` one would issue:
+For example to tag all untagged files containing ```Photos``` in path with tags ```photo``` and ```to-backup``` one would issue:
 
-    $ taggata $DATABASE tag "is:default and path:Photos" "+photo +to-backup -default"
+    $ taggata $DATABASE tag "untagged and path:Photos" "+photo +to-backup -default"
 
 ## Contributing
 
