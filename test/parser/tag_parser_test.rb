@@ -3,10 +3,11 @@ require 'taggata_test_helper'
 module Taggata
   module Parser
     describe Tag do
-      let(:parser) { ::Taggata::Parser::Tag }
+      let(:db) { Db.new 'sqlite:/', DbAdapters::Sequel }
+      let(:parser) { ::Taggata::Parser::Tag.new db }
 
       after do
-        ::Taggata::Tag.each(&:destroy)
+        ::Taggata::Persistent::Tag.destroy(db, {})
       end
 
       it 'parses' do

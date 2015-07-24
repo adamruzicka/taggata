@@ -21,10 +21,13 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'sequel', '~> 4.22.0', '>= 4.22.0'
   spec.add_dependency 'sqlite3', '~> 1.3.10', '>= 1.3.10'
+  spec.add_dependency 'clamp', '~>1.0.0', '>= 1.0.0'
 
+spec.add_development_dependency 'thor', '~> 0.0', '>= 0.0.0'
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'minitest', '~> 5.6.1', '>= 5.6.1'
   spec.add_development_dependency 'minitest-reporters', '~> 1.0.16', '>= 1.0.16'
+  spec.add_development_dependency 'pry', '~> 0.0', '>= 0.0.0'
   spec.add_development_dependency 'mocha', '~> 1.1', '>= 1.1.0'
 end

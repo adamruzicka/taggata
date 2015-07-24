@@ -3,9 +3,9 @@ require 'sequel'
 
 module Taggata
   require 'taggata/constants'
-  require 'taggata/file'
-  require 'taggata/directory'
-  require 'taggata/tag'
-  require 'taggata/filesystem_scanner'
+  require 'taggata/persistent'
+  require 'taggata/db'
+  require 'taggata/db_adapters'
+  require 'taggata/scanner'
   require 'taggata/parser'
 end

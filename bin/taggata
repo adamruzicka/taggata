@@ -1,47 +1,4 @@
 #!/usr/bin/env ruby
 
-require 'sequel'
-DB = Sequel.connect("sqlite://#{ARGV[0]}")
-
-DB.create_table :file_tags do
-  foreign_key :tag_id, :tags
-  foreign_key :file_id, :files
-  primary_key [:tag_id, :file_id], :name => :file_tags_pk, :unique => true
-end unless DB.table_exists? :file_tags
-
-Sequel::Model.plugin(:schema)
-
-require 'taggata'
-
-case ARGV[1]
-when 'scan'
-  root = ::Taggata::Directory.find_or_create(:name => ARGV[2])
-  root.scan
-when 'search'
-  result = ::Taggata::Parser::Query.parse(ARGV[2])
-  if result.empty?
-    puts "No files matching query '#{ARGV[2]}'"
-  else
-    result.each do |f|
-      puts f.path
-    end
-  end
-when 'tag'
-  result = ::Taggata::Parser::Query.parse(ARGV[2])
-  tag_hash = ::Taggata::Parser::Tag.parse(ARGV[3])
-  result.each do |file|
-    deletions = tag_hash[:del].map { |tag| [file.id, tag.id] }
-    DB[:file_tags].where([:file_id, :tag_id] => deletions).delete
-  end.flatten 1
-  additions = result.map do |file|
-    adds = tag_hash[:add].map { |tag| [file.id, tag.id] }
-    in_db = DB[:file_tags].where([:file_id, :tag_id] => adds).map([:file_id, :tag_id])
-    (adds - in_db).map { |file_id, tag_id| { :file_id => file_id, :tag_id => tag_id } }
-  end.flatten
-  DB[:file_tags].multi_insert(additions)
-when 'remove'
-  files = ::Taggata::Parser::Query.parse(ARGV[2])
-  files.each(&:destroy)
-when 'count'
-  puts ::Taggata::Parser::Query.parse(ARGV[2]).count
-end
+require 'taggata/cli'
+include Taggata::Cli
