@@ -1,4 +1,4 @@
-# Taggata [![Build Status](https://travis-ci.org/adamruzicka/regren.svg?branch=master)](https://travis-ci.org/adamruzicka/regren)
+# Taggata [![Build Status](https://travis-ci.org/adamruzicka/taggata.svg?branch=master)](https://travis-ci.org/adamruzicka/taggata)
 
 Ruby gem for file tagging, it can:
 - scan filesystem and store metadata in database
@@ -14,28 +14,28 @@ Clone this repository:
 And then execute:
 
     $ bundle install
-    
+
 ## Usage
 Scan filesystem:
 
-    $ taggata $DATABASE scan $PATH_TO_SCAN
-    
+    $ taggata --db-path $DATABASE scan $PATH_TO_SCAN
+
 Search for entries:
-    
-    $ taggata $DATABASE search "$SEARCH_QUERY"
-    
+
+    $ taggata --db-path $DATABASE search "$SEARCH_QUERY"
+
 Get count of matching entries:
-    
-    $ taggata $DATABASE count "$SEARCH_QUERY"
-    
+
+    $ taggata --db-path $DATABASE -c search "$SEARCH_QUERY"
+
 Tag an entry:
 
-    $ taggata $DATABASE tag "$SEARCH_QUERY" "$TAG_QUERY"
+    $ taggata --db-path $DATABASE tag "$SEARCH_QUERY" "$TAG_QUERY"
 
-Remove files matchine query:
+Remove files matching a query:
 
-    $ taggata $DATABASE remove "$SEARCH_QUERY"
-    
+    $ taggata --db-path $DATABASE remove "$SEARCH_QUERY"
+
 Query formats:
 Search query has format of "$TYPE:$PARAMETER", where:
 - $TYPE can be one of:
@@ -62,7 +62,7 @@ For example to tag all untagged files containing ```Photos``` in path with tags 
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/taggata/fork )
+1. Fork it ( https://github.com/adamruzicka/taggata/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

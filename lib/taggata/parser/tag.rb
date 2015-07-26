@@ -1,31 +1,37 @@
 module Taggata
   module Parser
     class Tag
+
+      attr_reader :db
+
+      def initialize(db)
+        @db = db
+      end
+
       # Parses give tagging string
       #
       # @param query String tagging string
       # @return [Hash]
-      def self.parse(query)
+      def parse(query)
         result = { :add => [], :del => [] }
         hash = query.split.reduce(result) do |acc, tag|
           handle_tag(tag, acc)
         end
-        dels = hash[:del].empty? ? [] : ::Taggata::Tag.where(:name => hash[:del]).all
+        dels = hash[:del].empty? ? [] : ::Taggata::Persistent::Tag.find(db, :name => hash[:del])
         adds = hash[:add].empty? ? [] : find_tags(hash[:add])
         { :add => adds, :del => dels }
       end
 
       private
 
-      def self.find_tags(names)
-        in_db = ::Taggata::Tag.where(:name => names).map(:name)
-        ::Taggata::Tag
-          .dataset
-          .multi_insert((names - in_db).map { |name| { :name => name } })
-        ::Taggata::Tag.where(:name => names).all
+      def find_tags(names)
+        in_db = ::Taggata::Persistent::Tag.find(db, :name => names).map(&:name)
+        values = (names - in_db).map { |name| { :name => name } }
+        ::Taggata::Persistent::Tag.bulk_insert(db, values)
+        ::Taggata::Persistent::Tag.find(db, :name => names)
       end
 
-      def self.handle_tag(tag, result)
+      def handle_tag(tag, result)
         if tag.start_with?('-')
           result[:del] << tag[1..-1]
         elsif tag.start_with?('+')
