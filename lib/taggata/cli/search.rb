@@ -8,7 +8,7 @@ module Taggata
       parameter "QUERY",  'the query to perform',          :attribute_name => :query, :required => true
  
       def execute
-        results = ::Taggata::Parser::Query.new(@db).parse(query)
+        results = ::Taggata::Parser::Query.parse(query)
         if count?
           puts results.count
         else

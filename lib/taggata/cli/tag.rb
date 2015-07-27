@@ -6,12 +6,12 @@ module Taggata
       parameter 'SEARCH_QUERY', 'the query to search', :attribute_name => :search_query, :required => true
  
       def execute
-        tags = ::Taggata::Parser::Tag.new(@db).parse(tag_query)
-        files = ::Taggata::Parser::Query.new(@db).parse(search_query)
-        @db.transaction do
-          files.each do |file|
-            file.add_tags *tags[:add]
-            file.remove_tags *tags[:del]
+        tags = ::Taggata::Parser::Tag.parse(tag_query)
+        files = ::Taggata::Parser::Query.parse(search_query)
+        Taggata::Database.transaction do
+          tags[:add].each { |tag| tag.add_untagged_files files }
+          tags[:del].each do |tag|
+            files.each { |file| tag.remove_file file }
           end
         end
       end

@@ -1,4 +1,6 @@
 module Taggata
-  require 'taggata/parser/tag'
-  require 'taggata/parser/query'
+  module Parser
+    require 'taggata/parser/tag'
+    require 'taggata/parser/query'
+  end
 end

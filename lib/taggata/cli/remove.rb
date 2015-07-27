@@ -5,9 +5,8 @@ module Taggata
       parameter "QUERY", 'the query to perform', :attribute_name => :query, :required => true
       
       def execute
-        parser = ::Taggata::Parser::Query.new @db
-        results = parser.parse query
-        @db.transaction do
+        results = ::Taggata::Parser::Query.parse query
+        Models::File.db.transaction do
           results.each(&:destroy)
         end
       end

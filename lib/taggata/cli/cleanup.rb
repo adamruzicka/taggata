@@ -5,14 +5,18 @@ module Taggata
       option %w(-t --tags),    :flag, 'remove unused tags', :default => true, :attribute_name => :tags
 
       def execute
-        remove_tags if tags?
+        Taggata::Database.transaction do
+          remove_tags if tags?
+        end
       end
 
       private
 
       def remove_tags
-        tags = @db.find_tags_without_files
-        count = @db.destroy(Taggata::Persistent::Tag, tags.map(&:to_hash)) unless tags.empty?
+        ids = Models::Tag.reduce({}) { |acc, tag| acc.merge(tag.id => tag.files.count) }
+                         .select { |id, count| count == 0 }
+                         .map { |id, count| id }
+        count = Models::Tag.where(:id => ids).delete
         puts "Removed tags: #{format_count count}" unless @quiet
       end
 

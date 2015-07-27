@@ -1,5 +1,6 @@
 require 'sequel'
-
+require 'taggata/database'
+Taggata::Database.initialize(:sqlite, '')
 require 'taggata'
 require 'minitest/autorun'
 require 'minitest/reporters'

@@ -3,8 +3,7 @@ require 'taggata_test_helper'
 module Taggata
   module Parser
     describe Query do
-      let(:db) { Db.new 'sqlite:/', DbAdapters::Sequel }
-      let(:parser) { ::Taggata::Parser::Query.new db }
+      let(:parser) { ::Taggata::Parser::Query }
 
       it 'translates' do
         parser.send(:translate, '&').must_equal :and
@@ -44,7 +43,7 @@ module Taggata
 
       it 'tries to resolve the token' do
         tag = mock.tap { |t| t.expects(:files).returns([1]) }
-        ::Taggata::Persistent::Tag.expects(:find_one).with(db, :name => '2014').returns(tag)
+        Models::Tag.expects(:find).with(:name => '2014').returns(tag)
         parser.send(:resolve, 'is:2014').must_equal([1])
       end
     end

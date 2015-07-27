@@ -2,13 +2,15 @@ module Taggata
   module Cli
 
     require 'clamp'
-    require 'taggata'
+    require 'sequel'
+    require 'taggata/database'
     require 'taggata/cli/commands'
 
     Clamp do
 
       option "--db-path", "DB_PATH", "path to the DB", :attribute_name => :db, :required => true do |db_path|
-        Taggata::Db.new "sqlite://#{db_path}", Taggata::DbAdapters::Sequel
+        Taggata::Database.initialize(:sqlite, db_path)
+        require 'taggata'
       end
 
       option %w(-v --verbose), :flag, 'be verbose', :default => false

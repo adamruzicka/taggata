@@ -10,11 +10,11 @@ module Taggata
       def execute
         case type
         when :file
-          @db.find(Taggata::Persistent::File, {}).each { |file| puts file.path }
+          Models::File.each { |f| puts f.path }
         when :directory
-          @db.find(Taggata::Persistent::Directory, {}).each { |dir| puts dir.path }
+          Models::Directory.each { |d| puts d.path }
         when :tag
-          @db.find(Taggata::Persistent::Tag, {}).each { |tag| puts tag.name }
+          Models::Tag.each { |t| puts t.name }
         end
       end
 
