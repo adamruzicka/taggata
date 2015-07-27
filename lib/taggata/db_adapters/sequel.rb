@@ -22,6 +22,13 @@ module Taggata
         find(Taggata::Persistent::File, :id => untagged_ids)
       end
 
+      def find_tags_without_files
+        file_tags = db[Persistent::FileTag.table].select(:tag_id).map { |hash| hash[:tag_id] }
+        tag_ids = db[Persistent::Tag.table].select(:id).map { |hash| hash[:id] }
+        untagged_ids = tag_ids.reject { |id| file_tags.include? id }
+        find(Persistent::Tag, :id => untagged_ids)
+      end
+
       def destroy(klass, options)
         db[klass.table].where(options).delete
       end

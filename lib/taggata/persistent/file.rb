@@ -32,7 +32,7 @@ module Taggata
       def remove_tags(*to_remove)
         return if to_remove.empty?
         current_tag_ids = tags.map(&:id)
-        to_remove_ids = current_tag_ids - to_remove.map(&:id)
+        to_remove_ids = current_tag_ids & to_remove.map(&:id)
         options = to_remove_ids.map { |tag_id| { :file_id => id, :tag_id => tag_id } }
         db.destroy(FileTag, options)
       end

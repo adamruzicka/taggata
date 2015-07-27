@@ -12,6 +12,10 @@ module Taggata
         raise NotImplementedError
       end
 
+      def find_tags_without_files
+        raise NotImplementedError
+      end
+
       def transaction(&block)
         raise NotImplementedError
       end

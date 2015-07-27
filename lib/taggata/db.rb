@@ -21,6 +21,10 @@ module Taggata
       adapter.find_untagged_files.map { |hash| Persistent::File.new_from_hash self, hash }
     end
 
+    def find_tags_without_files
+      adapter.find_tags_without_files.map { |hash| Persistent::Tag.new_from_hash self, hash }
+    end
+
     def destroy(klass, options)
       adapter.destroy(klass, options)
     end
