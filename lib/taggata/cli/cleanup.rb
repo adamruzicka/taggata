@@ -2,7 +2,7 @@ module Taggata
   module Cli
     class CleanupCommand < Clamp::Command
 
-      option %w(-t --tags),    :flag, 'remove unused tags', :default => true, :attribute_name => :tags
+      option %w(-t --tags), :flag, 'remove unused tags', :default => true, :attribute_name => :tags
 
       def execute
         Taggata::Database.transaction do
@@ -13,9 +13,7 @@ module Taggata
       private
 
       def remove_tags
-        ids = Models::Tag.reduce({}) { |acc, tag| acc.merge(tag.id => tag.files.count) }
-                         .select { |id, count| count == 0 }
-                         .map { |id, count| id }
+        ids = Models::Tag.unused_tag_ids
         count = Models::Tag.where(:id => ids).delete
         puts "Removed tags: #{format_count count}" unless @quiet
       end

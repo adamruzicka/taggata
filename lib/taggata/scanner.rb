@@ -1,10 +1,9 @@
 module Taggata
   class Scanner
 
-    attr_reader :db, :jobs, :progress
+    attr_reader :jobs, :progress
 
-    def initialize(db)
-      @db = db
+    def initialize
       @jobs = []
       @progress = { :files => 0, :directories => 0 }
     end
@@ -19,12 +18,10 @@ module Taggata
 
     def process(dir)
       report_header
-      db.transaction do
-        jobs << [dir.id, dir.name]
-        until jobs.empty?
-          do_job *jobs.shift
-          report
-        end
+      jobs << [dir.id, dir.name]
+      until jobs.empty?
+        do_job *jobs.shift
+        report
       end
     end
 
@@ -32,38 +29,28 @@ module Taggata
       files, directories = Dir.glob(File.join(path, '*'))
                               .sort
                               .partition { |entry| ::File.file? entry }
-      save_missing files.map { |f| ::File.basename f },
-                   parent_id,
-                   Persistent::File unless files.empty?
-      save_missing directories.map { |f| ::File.basename f },
-                   parent_id,
-                   Persistent::Directory unless directories.empty?
+
+      files.each do |file|
+        Models::File.find_or_create(:name => ::File.basename(file),
+                                    :parent_id => parent_id)
+      end
       progress[:files] += files.length
+
+      directories.each do |dir|
+        Models::Directory.find_or_create(:name => ::File.basename(dir),
+                                         :parent_id => parent_id)
+      end
+
       add_directory_jobs directories,
                          parent_id unless directories.empty?
       progress[:directories] += 1
     end
 
-    def save_missing(files, parent_id, klass)
-      in_db = find_in_db(klass, parent_id, files, :name)
-      to_save = (files - in_db).map do |basename|
-        { :name => basename, :parent_id => parent_id }
-      end
-      db.adapter.db[klass.table].multi_insert(to_save)
-    end
-
-    def find_in_db(klass, parent_id, names, param)
-      db.adapter.db[klass.table]
-        .where(:parent_id => parent_id)
-        .where(:name => names)
-        .map(param)
-    end
-
     def add_directory_jobs(dirs, parent_id)
-      ids = find_in_db Persistent::Directory,
-                       parent_id,
-                       dirs.map { |d| ::File.basename d },
-                       :id
+      names = dirs.map { |dir| ::File.basename dir }
+      ids = Models::Directory.where(:parent_id => parent_id)
+                             .where(:name => names)
+                             .map(&:id)
       ids.zip(dirs).each { |job| jobs << [job.first, job.last] }
     end
   end

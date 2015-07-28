@@ -9,6 +9,12 @@ module Taggata
                     .each { |file| add_file file }
       end
 
+      def self.unused_tag_ids
+        ids = Models::Tag.reduce({}) { |acc, tag| acc.merge(tag.id => tag.files.count) }
+                         .select { |id, count| count == 0 }
+                         .map { |id, count| id }
+      end
+
     end
 
   end

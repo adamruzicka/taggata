@@ -5,8 +5,8 @@ module Taggata
       parameter "[ROOT]", "the root of the scanned tree", :attribute_name => :root_path, :default => './'
 
       def execute
-        scanner = Taggata::Scanner.new @db
-        root = Taggata::Persistent::Directory.find_or_create @db, :name => root_path
+        scanner = Scanner.new
+        root = Models::Directory.find_or_create :name => root_path, :parent_id => nil
         scanner.process(root)
       end
 
