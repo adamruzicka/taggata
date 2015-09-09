@@ -3,8 +3,9 @@ module Taggata
     class Query
       class << self
 
-        def parse(query)
-          process(postfix(query))
+        def parse(query, separator = " ")
+          ids = process(postfix(query, separator))
+          Models::File.where(:id => ids).all
         end
 
         private
@@ -18,19 +19,19 @@ module Taggata
           case type.downcase
           when 'is', 'tag'
             tag = Models::Tag.find(:name => name)
-            tag.nil? ? [] : tag.files
+            tag.nil? ? [] : tag.files_dataset.map(:id)
           when 'like'
-            Models::File.where(Sequel.like(:name, name)).all
+            Models::File.where(Sequel.like(:name, name)).map(:id)
           when 'file', 'name'
             files = Models::File.all
-            files.select { |f| f.name[/#{name}/] }
+            files.select { |f| f.name[/#{name}/] }.map(&:id)
           when 'path'
-            files = Models::File.all.select { |f| f.path[/#{name}/] }
+            files = Models::File.all.select { |f| f.path[/#{name}/] }.map(&:id)
           when 'missing'
-            Models::Tag.find_or_create(:name => MISSING_TAG_NAME).files
+            Models::Tag.find_or_create(:name => MISSING_TAG_NAME).files_dataset.map(:id)
           when 'untagged'
             tagged_file_ids = Models::Tag.map(&:files).flatten.map(&:id)
-            Models::File.exclude(:id => tagged_file_ids).all
+            Models::File.exclude(:id => tagged_file_ids).map(:id)
           else
             fail "Unknown token type '#{type}'"
           end
@@ -75,10 +76,10 @@ module Taggata
         #
         # @param query String the query string
         # @result [String] query in postfix notation as an array
-        def postfix(query)
+        def postfix(query, separator = ' ')
           postfix = []
           operators = []
-          query.split.each do |token|
+          query.split(separator).each do |token|
             if operator? token
               operators << translate(token)
             elsif token == ')'

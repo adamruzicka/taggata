@@ -42,7 +42,8 @@ module Taggata
       end
 
       it 'tries to resolve the token' do
-        tag = mock.tap { |t| t.expects(:files).returns([1]) }
+        ids = mock.tap { |ids| ids.expects(:map).with(:id).returns([1]) }
+        tag = mock.tap { |t| t.expects(:files_dataset).returns(ids) }
         Models::Tag.expects(:find).with(:name => '2014').returns(tag)
         parser.send(:resolve, 'is:2014').must_equal([1])
       end

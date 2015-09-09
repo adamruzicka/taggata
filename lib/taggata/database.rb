@@ -4,9 +4,9 @@ module Taggata
 
       def initialize(db_type, db_path)
         Sequel.extension :migration
-        @@db = connect(db_type, db_path)
+        @db = connect(db_type, db_path)
         run_migrations
-        Sequel::Model.db = @@db
+        Sequel::Model.db = @db
       end
 
       def connect(db_type, db_path)
@@ -20,15 +20,20 @@ module Taggata
 
       def transaction(&block)
         raise "A block must be provided to run in transaction." unless block_given?
-        @@db.transaction do
+        @db.transaction do
           block.call
         end
+      end
+
+      def reset
+        ::Sequel::Migrator.run(@db, migrations_path, table: 'taggata_schema_info', :target => 0)
+        run_migrations
       end
 
       private
 
       def run_migrations
-        ::Sequel::Migrator.run(@@db, migrations_path, table: 'taggata_schema_info')
+        ::Sequel::Migrator.run(@db, migrations_path, table: 'taggata_schema_info')
       end
 
       def migrations_path

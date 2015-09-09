@@ -11,6 +11,10 @@ module Taggata
         ::File.join(parents.reverse.map(&:name))
       end
 
+      def entries
+        @entries ||= directories + files
+      end
+
     end
 
   end
