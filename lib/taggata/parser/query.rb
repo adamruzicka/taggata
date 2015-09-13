@@ -8,8 +8,8 @@ module Taggata
         @db = db
       end
 
-      def parse(query)
-        process(postfix(query))
+      def parse(query, separator = ' ')
+        process(postfix(query, separator))
       end
 
       private
@@ -82,10 +82,10 @@ module Taggata
       #
       # @param query String the query string
       # @result [String] query in postfix notation as an array
-      def postfix(query)
+      def postfix(query, separator = ' ')
         postfix = []
         operators = []
-        query.split.each do |token|
+        query.split(separator).each do |token|
           if operator? token
             operators << translate(token)
           elsif token == ')'

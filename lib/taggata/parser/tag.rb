@@ -12,9 +12,9 @@ module Taggata
       #
       # @param query String tagging string
       # @return [Hash]
-      def parse(query)
+      def parse(query, separator = ' ')
         result = { :add => [], :del => [] }
-        hash = query.split.reduce(result) do |acc, tag|
+        hash = query.split(separator).reduce(result) do |acc, tag|
           handle_tag(tag, acc)
         end
         dels = hash[:del].empty? ? [] : ::Taggata::Persistent::Tag.find(db, :name => hash[:del])

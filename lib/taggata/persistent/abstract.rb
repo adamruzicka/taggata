@@ -30,9 +30,6 @@ module Taggata
         db.find_or_create(self, options)
       end
 
-      def invalidate_cache
-      end
-
       def to_hash
         raise NotImplementedError
       end

@@ -29,6 +29,14 @@ module Taggata
         parsed[:add].must_be_instance_of Array
         parsed[:del].must_be_instance_of Array
       end
+
+      it 'allows setting a separator' do
+        parsed = parser.parse('+tag2/+tag1/+tag3', '/')
+        parsed[:add].map(&:name).must_equal %w(tag1 tag2 tag3)
+        parsed = parser.parse('+tag1/+tag2/+tag3', '|')
+        parsed[:add].map(&:name).must_equal %w(tag1/+tag2/+tag3)
+        parser.parse('+tag1 +tag2')[:add].map(&:name).must_equal %w(tag1 tag2)
+      end
     end
   end
 end
